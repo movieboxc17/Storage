@@ -124,6 +124,13 @@
         #downloadAllButton {
             margin-top: 10px;
         }
+
+        .copyright {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -141,6 +148,10 @@
 
         <button id="deleteAllButton" class="button">Delete All</button>
         <button id="downloadAllButton" class="button">Download All</button>
+
+        <div class="copyright">
+            &copy; 2023 Teknik.AB. All rights reserved.
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
@@ -246,34 +257,28 @@
             }
         }
 
-        function createObjectURL(file) {
-            var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
-            if (URL) {
-                var blob = new Blob([], { type: 'application/octet-stream' });
-                blob.filename = file.name;
-                return URL.createObjectURL(blob);
-            }
-            return null;
-        }
-
         function downloadAllFiles() {
             var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
 
-            if (files.length > 0) {
-                var zip = new JSZip();
+            var zip = new JSZip();
+            var zipFilename = 'download.zip';
 
-                files.forEach(function(file) {
-                    zip.file(file.name, createObjectURL(file), { binary: true });
-                });
+            files.forEach(function(file) {
+                zip.file(file.name, createBlob(file));
+            });
 
-                zip.generateAsync({ type: 'blob' })
-                    .then(function(content) {
-                        var downloadLink = document.createElement('a');
-                        downloadLink.href = URL.createObjectURL(content);
-                        downloadLink.download = 'all_files.zip';
-                        downloadLink.click();
-                    });
-            }
+            zip.generateAsync({ type: 'blob' }).then(function(content) {
+                saveAs(content, zipFilename);
+            });
+        }
+
+        function createObjectURL(file) {
+            var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+            return URL.createObjectURL(createBlob(file));
+        }
+
+        function createBlob(file) {
+            return new Blob([''], { type: 'application/octet-stream' });
         }
 
         document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
