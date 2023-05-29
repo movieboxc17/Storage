@@ -41,7 +41,8 @@
             margin-right: 5px;
         }
 
-        #deleteAllButton {
+        #deleteAllButton,
+        #downloadAllButton {
             margin-top: 10px;
         }
     </style>
@@ -54,7 +55,9 @@
     <ul id="fileList"></ul>
 
     <button id="deleteAllButton">Delete All</button>
+    <button id="downloadAllButton">Download All</button>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script>
         function updateFileList() {
             var fileList = document.getElementById('fileList');
@@ -165,8 +168,29 @@
             return null;
         }
 
+        function downloadAllFiles() {
+            var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+
+            if (files.length > 0) {
+                var zip = new JSZip();
+
+                files.forEach(function(file) {
+                    zip.file(file.name, createObjectURL(file), { binary: true });
+                });
+
+                zip.generateAsync({ type: 'blob' })
+                    .then(function(content) {
+                        var downloadLink = document.createElement('a');
+                        downloadLink.href = URL.createObjectURL(content);
+                        downloadLink.download = 'all_files.zip';
+                        downloadLink.click();
+                    });
+            }
+        }
+
         document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
         document.getElementById('deleteAllButton').addEventListener('click', deleteAllFiles);
+        document.getElementById('downloadAllButton').addEventListener('click', downloadAllFiles);
 
         updateFileList();
     </script>
