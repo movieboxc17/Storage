@@ -5,40 +5,72 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
         }
 
-        #fileUpload {
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .file-upload {
             margin-bottom: 10px;
         }
 
-        #fileList {
+        .file-list {
             list-style-type: none;
             padding: 0;
         }
 
-        .fileItem {
+        .file-item {
             display: flex;
             align-items: center;
             margin-bottom: 5px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
         }
 
-        .fileName {
+        .file-name {
             flex-grow: 1;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
         }
 
-        .fileSize {
+        .file-size {
             margin-left: 10px;
         }
 
-        .fileActions {
+        .file-actions {
             margin-left: 10px;
         }
 
-        .fileActions button {
-            margin-right: 5px;
+        .button {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #45a049;
         }
 
         #deleteAllButton,
@@ -48,45 +80,49 @@
     </style>
 </head>
 <body>
-    <h1>Web Storage Cloud</h1>
+    <div class="container">
+        <h1>Web Storage Cloud</h1>
 
-    <input type="file" id="fileUpload" multiple>
+        <input type="file" class="file-upload" multiple>
 
-    <ul id="fileList"></ul>
+        <ul class="file-list"></ul>
 
-    <button id="deleteAllButton">Delete All</button>
-    <button id="downloadAllButton">Download All</button>
+        <button id="deleteAllButton" class="button">Delete All</button>
+        <button id="downloadAllButton" class="button">Download All</button>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script>
         function updateFileList() {
-            var fileList = document.getElementById('fileList');
+            var fileList = document.querySelector('.file-list');
             fileList.innerHTML = '';
 
             var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
 
             files.forEach(function(file, index) {
                 var listItem = document.createElement('li');
-                listItem.classList.add('fileItem');
+                listItem.classList.add('file-item');
 
                 var fileName = document.createElement('div');
-                fileName.classList.add('fileName');
+                fileName.classList.add('file-name');
                 fileName.textContent = file.name;
 
                 var fileSize = document.createElement('div');
-                fileSize.classList.add('fileSize');
+                fileSize.classList.add('file-size');
                 fileSize.textContent = formatFileSize(file.size);
 
                 var fileActions = document.createElement('div');
-                fileActions.classList.add('fileActions');
+                fileActions.classList.add('file-actions');
 
                 var deleteButton = document.createElement('button');
+                deleteButton.classList.add('button');
                 deleteButton.textContent = 'Delete';
                 deleteButton.addEventListener('click', function() {
                     deleteFile(index);
                 });
 
                 var downloadButton = document.createElement('button');
+                downloadButton.classList.add('button');
                 downloadButton.textContent = 'Download';
                 downloadButton.addEventListener('click', function() {
                     downloadFile(file.name);
@@ -188,7 +224,7 @@
             }
         }
 
-        document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
+        document.querySelector('.file-upload').addEventListener('change', handleFileUpload);
         document.getElementById('deleteAllButton').addEventListener('click', deleteAllFiles);
         document.getElementById('downloadAllButton').addEventListener('click', downloadAllFiles);
 
