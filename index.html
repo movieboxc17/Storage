@@ -21,8 +21,67 @@
             text-align: center;
         }
 
-        .file-upload {
+        .file-upload-container {
+            position: relative;
             margin-bottom: 10px;
+        }
+
+        .file-upload {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .button-file-select {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button-file-select input[type="file"] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            font-size: 100px;
+            cursor: pointer;
+            opacity: 0;
+            filter: alpha(opacity=0);
         }
 
         .file-list {
@@ -54,25 +113,6 @@
             margin-left: 10px;
         }
 
-        .button {
-            display: inline-block;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            background-color: #4caf50;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .button:hover {
-            background-color: #45a049;
-        }
-
         #deleteAllButton,
         #downloadAllButton {
             margin-top: 10px;
@@ -83,7 +123,11 @@
     <div class="container">
         <h1>Web Storage Cloud</h1>
 
-        <input type="file" class="file-upload" multiple>
+        <div class="file-upload-container">
+            <label for="fileUpload" class="button-file-select">Select Files
+                <input type="file" id="fileUpload" multiple class="file-upload">
+            </label>
+        </div>
 
         <ul class="file-list"></ul>
 
@@ -224,7 +268,7 @@
             }
         }
 
-        document.querySelector('.file-upload').addEventListener('change', handleFileUpload);
+        document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
         document.getElementById('deleteAllButton').addEventListener('click', deleteAllFiles);
         document.getElementById('downloadAllButton').addEventListener('click', downloadAllFiles);
 
