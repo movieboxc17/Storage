@@ -21,6 +21,13 @@
             text-align: center;
         }
 
+        .warning {
+            text-align: center;
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
         .file-upload-container {
             position: relative;
             margin-bottom: 10px;
@@ -122,6 +129,7 @@
 <body>
     <div class="container">
         <h1>Teknik.AB Web Cloud Storage</h1>
+        <div class="warning">Warning! This is only in beta.</div>
 
         <div class="file-upload-container">
             <label for="fileUpload" class="button-file-select">Select Files
@@ -134,9 +142,6 @@
         <button id="deleteAllButton" class="button">Delete All</button>
         <button id="downloadAllButton" class="button">Download All</button>
     </div>
-    <footer>
-        <div style="text-align: center; margin-top: 20px;">&copy; 2023 Teknik.AB. All rights reserved.</div>
-    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script>
