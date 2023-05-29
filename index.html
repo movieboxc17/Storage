@@ -40,6 +40,10 @@
         .fileActions button {
             margin-right: 5px;
         }
+
+        #deleteAllButton {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -48,6 +52,8 @@
     <input type="file" id="fileUpload" multiple>
 
     <ul id="fileList"></ul>
+
+    <button id="deleteAllButton">Delete All</button>
 
     <script>
         function updateFileList() {
@@ -129,6 +135,11 @@
             }
         }
 
+        function deleteAllFiles() {
+            localStorage.removeItem('uploadedFiles');
+            updateFileList();
+        }
+
         function downloadFile(filename) {
             var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
 
@@ -155,6 +166,7 @@
         }
 
         document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
+        document.getElementById('deleteAllButton').addEventListener('click', deleteAllFiles);
 
         updateFileList();
     </script>
