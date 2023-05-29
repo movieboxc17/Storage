@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Storage Cloud</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
 
+        #fileUpload {
+            margin-bottom: 10px;
+        }
+
+        #fileList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .fileItem {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .fileName {
+            flex-grow: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .fileSize {
+            margin-left: 10px;
+        }
+
+        .fileActions {
+            margin-left: 10px;
+        }
+
+        .fileActions button {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Web Storage Cloud</h1>
+
+    <input type="file" id="fileUpload" multiple>
+
+    <ul id="fileList"></ul>
+
+    <script>
+        function updateFileList() {
+            var fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+
+            files.forEach(function(file, index) {
+                var listItem = document.createElement('li');
+                listItem.classList.add('fileItem');
+
+                var fileName = document.createElement('div');
+                fileName.classList.add('fileName');
+                fileName.textContent = file.name;
+
+                var fileSize = document.createElement('div');
+                fileSize.classList.add('fileSize');
+                fileSize.textContent = formatFileSize(file.size);
+
+                var fileActions = document.createElement('div');
+                fileActions.classList.add('fileActions');
+
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', function() {
+                    deleteFile(index);
+                });
+
+                var downloadButton = document.createElement('button');
+                downloadButton.textContent = 'Download';
+                downloadButton.addEventListener('click', function() {
+                    downloadFile(file.name);
+                });
+
+                fileActions.appendChild(deleteButton);
+                fileActions.appendChild(downloadButton);
+
+                listItem.appendChild(fileName);
+                listItem.appendChild(fileSize);
+                listItem.appendChild(fileActions);
+
+                fileList.appendChild(listItem);
+            });
+        }
+
+        function formatFileSize(size) {
+            if (size < 1024) {
+                return size + ' B';
+            } else if (size < 1024 * 1024) {
+                return Math.round(size / 1024) + ' KB';
+            } else {
+                return Math.round(size / (1024 * 1024)) + ' MB';
+            }
+        }
+
+        function handleFileUpload(event) {
+            var files = event.target.files;
+            var uploadedFiles = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+
+            for (var i = 0; i < files.length; i++) {
+                uploadedFiles.push({
+                    name: files[i].name,
+                    size: files[i].size
+                });
+            }
+
+            localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+            updateFileList();
+        }
+
+        function deleteFile(index) {
+            var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+
+            if (index >= 0 && index < files.length) {
+                files.splice(index, 1);
+                localStorage.setItem('uploadedFiles', JSON.stringify(files));
+                updateFileList();
+            }
+        }
+
+        function downloadFile(filename) {
+            var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+
+            var file = files.find(function(file) {
+                return file.name === filename;
+            });
+
+            if (file) {
+                var downloadLink = document.createElement('a');
+                downloadLink.href = createObjectURL(file);
+                downloadLink.download = file.name;
+                downloadLink.click();
+            }
+        }
+
+        function createObjectURL(file) {
+            var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+            if (URL) {
+                var blob = new Blob([], { type: 'application/octet-stream' });
+                blob.filename = file.name;
+                return URL.createObjectURL(blob);
+            }
+            return null;
+        }
+
+        document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
+
+        updateFileList();
+    </script>
+</body>
+</html>
