@@ -3,87 +3,133 @@
 <head>
     <title>Teknik.AB Web Cloud Storage</title>
     <style>
-        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            text-align: center;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            margin-bottom: 20px;
+            text-align: center;
         }
 
-        .account-input {
-            width: 300px;
-            height: 30px;
+        .warning {
+            text-align: center;
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .file-upload-container {
+            position: relative;
             margin-bottom: 10px;
-            padding: 5px;
+        }
+
+        .file-upload {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
 
         .button {
             display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 10px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-            border-radius: 4px;
-            border: none;
-        }
-
-        .warning {
-            color: red;
+            padding: 8px 16px;
+            font-size: 14px;
             font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .file-upload-container {
             text-align: center;
-            margin-top: 20px;
+            text-decoration: none;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        .file-upload {
-            display: none;
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .button-file-select {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button-file-select input[type="file"] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            font-size: 100px;
+            cursor: pointer;
+            opacity: 0;
+            filter: alpha(opacity=0);
         }
 
         .file-list {
-            list-style: none;
+            list-style-type: none;
             padding: 0;
         }
 
         .file-item {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            border: 1px solid #ccc;
             margin-bottom: 5px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
         }
 
         .file-name {
-            flex: 1;
+            flex-grow: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
         .file-size {
-            margin-right: 10px;
+            margin-left: 10px;
         }
 
-        .hidden {
-            display: none;
+        .file-actions {
+            margin-left: 10px;
         }
 
-        .logout-button {
+        #deleteAllButton,
+        #downloadAllButton {
             margin-top: 10px;
-            text-align: right;
         }
 
-        .logout-button button {
-            background-color: #ff5722;
+        .copyright {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -92,28 +138,19 @@
         <h1>Teknik.AB Web Cloud Storage</h1>
         <div class="warning">Warning! This is only in beta.</div>
 
-        <div id="loginContainer">
-            <input type="text" id="username" class="account-input" placeholder="Username">
-            <input type="password" id="password" class="account-input" placeholder="Password">
-            <button id="loginButton" class="button">Login</button>
-            <button id="createAccountButton" class="button">Create Account</button>
+        <div class="file-upload-container">
+            <label for="fileUpload" class="button-file-select">Select Files
+                <input type="file" id="fileUpload" multiple class="file-upload">
+            </label>
         </div>
 
-        <div id="fileUploadContainer" class="hidden">
-            <div class="file-upload-container">
-                <label for="fileUpload" class="button">Select Files
-                    <input type="file" id="fileUpload" multiple class="file-upload">
-                </label>
-            </div>
+        <ul class="file-list"></ul>
 
-            <ul class="file-list"></ul>
+        <button id="deleteAllButton" class="button">Delete All</button>
+        <button id="downloadAllButton" class="button">Download All</button>
 
-            <button id="deleteAllButton" class="button">Delete All</button>
-            <button id="downloadAllButton" class="button">Download All</button>
-
-            <div class="logout-button">
-                <button id="logoutButton" class="button">Logout</button>
-            </div>
+        <div class="copyright">
+            &copy; 2023 Teknik.AB. All rights reserved.
         </div>
     </div>
 
@@ -127,54 +164,76 @@
 
             files.forEach(function(file, index) {
                 var listItem = document.createElement('li');
-                listItem.className = 'file-item';
+                listItem.classList.add('file-item');
 
-                var fileName = document.createElement('span');
-                fileName.className = 'file-name';
+                var fileName = document.createElement('div');
+                fileName.classList.add('file-name');
                 fileName.textContent = file.name;
 
-                var fileSize = document.createElement('span');
-                fileSize.className = 'file-size';
+                var fileSize = document.createElement('div');
+                fileSize.classList.add('file-size');
                 fileSize.textContent = formatFileSize(file.size);
 
+                var fileActions = document.createElement('div');
+                fileActions.classList.add('file-actions');
+
                 var deleteButton = document.createElement('button');
+                deleteButton.classList.add('button');
                 deleteButton.textContent = 'Delete';
                 deleteButton.addEventListener('click', function() {
                     deleteFile(index);
                 });
 
+                var downloadButton = document.createElement('button');
+                downloadButton.classList.add('button');
+                downloadButton.textContent = 'Download';
+                downloadButton.addEventListener('click', function() {
+                    downloadFile(file.name);
+                });
+
+                fileActions.appendChild(deleteButton);
+                fileActions.appendChild(downloadButton);
+
                 listItem.appendChild(fileName);
                 listItem.appendChild(fileSize);
-                listItem.appendChild(deleteButton);
+                listItem.appendChild(fileActions);
 
                 fileList.appendChild(listItem);
             });
         }
 
-        function formatFileSize(bytes) {
-            if (bytes < 1024) return bytes + ' bytes';
-            else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            else return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        function formatFileSize(size) {
+            if (size < 1024) {
+                return size + ' B';
+            } else if (size < 1024 * 1024) {
+                return Math.round(size / 1024) + ' KB';
+            } else {
+                return Math.round(size / (1024 * 1024)) + ' MB';
+            }
+        }
+
+        function handleFileUpload(event) {
+            var files = event.target.files;
+            var uploadedFiles = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+
+            for (var i = 0; i < files.length; i++) {
+                uploadedFiles.push({
+                    name: files[i].name,
+                    size: files[i].size
+                });
+            }
+
+            localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+            updateFileList();
         }
 
         function deleteFile(index) {
             var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
-            files.splice(index, 1);
-            localStorage.setItem('uploadedFiles', JSON.stringify(files));
-            updateFileList();
-        }
 
-        function downloadFile(fileName) {
-            var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
-            var file = files.find(function(file) {
-                return file.name === fileName;
-            });
-
-            if (file) {
-                var link = document.createElement('a');
-                link.href = 'data:application/octet-stream,' + encodeURIComponent(file.content);
-                link.download = file.name;
-                link.click();
+            if (index >= 0 && index < files.length) {
+                files.splice(index, 1);
+                localStorage.setItem('uploadedFiles', JSON.stringify(files));
+                updateFileList();
             }
         }
 
@@ -183,116 +242,50 @@
             updateFileList();
         }
 
-        function downloadAllFiles() {
-            var zip = new JSZip();
-
+        function downloadFile(filename) {
             var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
 
+            var file = files.find(function(file) {
+                return file.name === filename;
+            });
+
+            if (file) {
+                var downloadLink = document.createElement('a');
+                downloadLink.href = createObjectURL(file);
+                downloadLink.download = file.name;
+                downloadLink.click();
+            }
+        }
+
+        function downloadAllFiles() {
+            var files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+
+            var zip = new JSZip();
+            var zipFilename = 'download.zip';
+
             files.forEach(function(file) {
-                zip.file(file.name, file.content);
+                zip.file(file.name, createBlob(file));
             });
 
             zip.generateAsync({ type: 'blob' }).then(function(content) {
-                var link = document.createElement('a');
-                link.href = URL.createObjectURL(content);
-                link.download = 'files.zip';
-                link.click();
+                saveAs(content, zipFilename);
             });
         }
 
-        function logout() {
-            localStorage.removeItem('uploadedFiles');
-            document.getElementById('loginContainer').classList.remove('hidden');
-            document.getElementById('fileUploadContainer').classList.add('hidden');
+        function createObjectURL(file) {
+            var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+            return URL.createObjectURL(createBlob(file));
         }
 
-        function createAccount() {
-            var usernameInput = document.getElementById('username');
-            var passwordInput = document.getElementById('password');
-
-            var username = usernameInput.value;
-            var password = passwordInput.value;
-
-            if (username && password) {
-                localStorage.setItem('username', username);
-                localStorage.setItem('password', password);
-
-                usernameInput.value = '';
-                passwordInput.value = '';
-
-                document.getElementById('loginContainer').classList.add('hidden');
-                document.getElementById('fileUploadContainer').classList.remove('hidden');
-                updateFileList();
-            }
+        function createBlob(file) {
+            return new Blob([''], { type: 'application/octet-stream' });
         }
 
-        function login() {
-            var usernameInput = document.getElementById('username');
-            var passwordInput = document.getElementById('password');
-
-            var username = usernameInput.value;
-            var password = passwordInput.value;
-
-            var storedUsername = localStorage.getItem('username');
-            var storedPassword = localStorage.getItem('password');
-
-            if (username === storedUsername && password === storedPassword) {
-                usernameInput.value = '';
-                passwordInput.value = '';
-
-                document.getElementById('loginContainer').classList.add('hidden');
-                document.getElementById('fileUploadContainer').classList.remove('hidden');
-                updateFileList();
-            } else {
-                alert('Invalid username or password');
-            }
-        }
-
-        function checkLoginStatus() {
-            var storedUsername = localStorage.getItem('username');
-            var storedPassword = localStorage.getItem('password');
-
-            if (storedUsername && storedPassword) {
-                document.getElementById('loginContainer').classList.add('hidden');
-                document.getElementById('fileUploadContainer').classList.remove('hidden');
-                updateFileList();
-            }
-        }
-
-        function uploadFiles(files) {
-            var uploadedFiles = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
-
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                var reader = new FileReader();
-
-                reader.onload = (function(file) {
-                    return function(e) {
-                        uploadedFiles.push({
-                            name: file.name,
-                            size: file.size,
-                            content: e.target.result
-                        });
-
-                        localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
-                        updateFileList();
-                    };
-                })(file);
-
-                reader.readAsDataURL(file);
-            }
-        }
-
-        document.getElementById('loginButton').addEventListener('click', login);
-        document.getElementById('createAccountButton').addEventListener('click', createAccount);
-        document.getElementById('fileUpload').addEventListener('change', function(e) {
-            uploadFiles(e.target.files);
-        });
+        document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
         document.getElementById('deleteAllButton').addEventListener('click', deleteAllFiles);
         document.getElementById('downloadAllButton').addEventListener('click', downloadAllFiles);
-        document.getElementById('logoutButton').addEventListener('click', logout);
 
-        checkLoginStatus();
+        updateFileList();
     </script>
 </body>
 </html>
